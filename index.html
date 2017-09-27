@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Class prompt demo</title>
+    <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"> <!-- Google font because it's awesome -->
+    <!-- Tiny stylesheet because I cry when I see an unformatted HTML page -->
+    <style>
+      body {
+        font-family: 'Dosis', sans-serif; /* load google font or fall back to normal */
+        background: #d8d697;
+        padding: 60px 90px;
+        font-size: 1.5em; /* relative font sizes are fun */
+      }
+      button {
+        background: #56568a;
+        color: white;
+        border: none;
+        padding: 20px;
+        font-size: 1.1em;
+      }
+      #results {background: rgba(0,0,0,.1);padding: 10px 20px;}
+      #results:empty {padding: 0;}
+      #results p {margin: .5em 0;}
+      .correct {padding-left: 1em;color:green;text-transform: uppercase;}
+    </style>
+    <script>
+    //I use DOMContentLoaded to wait until document is completely ready. My substitute for jQuery's $(document).ready
+    document.addEventListener('DOMContentLoaded', function(){
+      // make empty object of arrays to hold the pre-determined questions.
+      // position 0 = the user's answer, position 1 = printable description, position 2 = correct answer
+      var questions = {
+        yourName:[],
+        heroName:[],
+        birthLocation: [],
+        mother: []
+      }
+
+      // Question 1. Ask as soon as the page loads
+      var yourName = prompt("Hello, offwordler. What is your your name?");
+      responseToArray(yourName, "yourName", yourName); // getting fancy with functions
+
+      // DRY programming. Does console print for each question & feeds response back to question object
+      function responseToArray(content, string, correctAnswer) { // accept 3 arguments
+        console.log(string+": "+content);
+        questions[string][0] = content; // use the string as object key and insert that as user response into questions object
+        questions[string][1] = correctAnswer; // in the same object key, insert additional value for correct answer
+      };
+
+      // modify the DOM with the user's name
+      // I use querySelector whenever I can't use jQuery. It reminds me of home.
+      document.querySelector("#response").innerHTML = "Hi, "+yourName+".<p>I like the book series <a href='https://en.wikipedia.org/wiki/Dune_(novel)' target='_blank'>Dune, by Frank Herbert</a>. For the next few minutes I’ll force you to learn more about it through a series of annoying pop ups.</p><p>Just as there are many tracks through the desert, there are many paths through these questions. But be warned, all your responses will be recorded and measured against the golden path.</p>";
+      document.querySelector("#action").innerHTML = "Now place your hand into the gomjabar and discover the mysteries of the universe..."+"<p><button id='begin'>Begin!</button></p>"
+      var reset = "<button onclick='location.reload();'>Reset</button>"; // semi-fancy refresh button. Used after user answers all questions.
+
+      // When the button is clicked
+      document.querySelector("#begin").addEventListener("click", function(){
+
+        var heroName = prompt(yourName+", Dune is the story of a hero who saw through the veils of time. What was his birth name?");
+        responseToArray(heroName, "heroName", "Paul"); // pass three arguments: user's answer, printable description, correct answer
+
+        var birthLocation = prompt("Some knew him as "+heroName+" but to his Fremen legions he was known as Muad'dib. Tell me, "+yourName+" where was "+heroName+" born?");
+        responseToArray(birthLocation, "birthLocation","Calidan");
+
+        var mother = prompt("I too have heard "+birthLocation+" was the place of "+heroName+"'s birth, "+yourName+". But remind me, what was his mother's name?");
+        responseToArray(mother, "mother","Jessica");
+
+        var summary = alert("By Shai Hulud! So "+heroName+"'s mother was "+mother+", he was born on "+birthLocation+". "+yourName+", with all your knowledge you must be a mentat!");
+
+        var matrix = ''; // prepare to hold <p> tags of user's response
+        var score = 0; // keep score. Start at zero
+
+        // A for in loop to print out all questions. It works, but I wanted to get fancier.
+        /*for (var e in questions) {
+          console.log(questions[e][0])
+          matrix += "<p>"+e+": "+questions[e][0]+"</p>"
+        }
+        matrix += reset;
+        document.querySelector("#results").innerHTML += matrix; // adding questions to the results div
+        */
+
+        /* The fancy for in loop to parse object. It converts input to lower case and compares it to the correct value
+        I tried to add a score but it's not working and I don't know why
+        */
+        for (var e in questions) {
+          var lowerUser = questions[e][0].toLowerCase(); // I learned that toLowerCase returns an object, so I'm storing it in a new variable
+          var lowerReal = questions[e][1].toLowerCase(); //if correct answer exists, create a real answer variable
+          matrix += "<p>"+e+": "+questions[e][0]; //append matrix variable with current object key and value for user response
+            if (lowerUser == lowerReal) { // if the user's value matches the real value
+              matrix += "<span class='correct'>correct!</span></p>" // append correct label and close the tag
+              score++; // incriment score counter
+            }
+           else {
+            matrix +="</p>" // otherwise just close the paragraph tag
+          }
+        }
+        matrix += "<p><strong>Score: "+score+"</strong></p>" // below the loop, show score total
+        matrix += reset; // add reset button. Code defined at top.
+        document.querySelector("#results").innerHTML += matrix; // through the whole thing into the document
+
+      }); // end fake document ready
+    }, false); // end fake document ready
+    </script>
+  </head>
+  <body>
+    <div id="response"></div>
+    <div id="action"></div>
+    <div id="results"></div>
+  </body>
+</html>
